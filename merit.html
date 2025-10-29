@@ -3,43 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadet Merit Lookup</title>
+  <title>Merit Look-up</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    header {
+      text-align: center;
+      padding: 15px 0;
+      background: rgba(0,0,0,0.7);
+      border-bottom: 2px solid #666;
+      color: #fff;
+    }
+    nav {
+      margin-top: 8px;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    nav a:hover, nav a.active {
+      color: #00bcd4;
+    }
+    iframe {
+      width: 100%;
+      height: calc(100% - 80px);
+      border: none;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>Cadet Merit Lookup</h1>
-    <p>Enter a cadet's name to check their merit points</p>
-    <a href="index.html" class="btn">Go to Store</a>
-  </div>
+  <header>
+    <h1>CADET MERIT LOOK-UP</h1>
+    <nav>
+      <a href="index.html">Store</a>
+      <a href="merit.html" class="active">Merit Look-up</a>
+    </nav>
+  </header>
 
-  <form id="meritForm">
-    <div class="form-group">
-      <label for="cadetName">Cadet Name</label>
-      <input type="text" id="cadetName" placeholder="Enter cadet's full name" autocomplete="off">
-      <div id="suggestions" class="suggestions"></div>
-    </div>
-    <button type="submit" class="btn">Check Merit</button>
-  </form>
-
-  <div class="result" id="result">
-    <h2 id="cadetResultName">Cadet Name</h2>
-    <div class="merit-points" id="meritPoints">–</div>
-    <div class="recent-activity">
-      <h3>Recent Activity</h3>
-      <div id="activityContainer" class="activity-container"></div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <p>Merit System © 2024 | Human Resource Department</p>
-  </div>
-</div>
-<script src="script.js"></script>
-<script>
-const page = "merit";
-initPage(page);
-</script>
+  <iframe src="https://script.google.com/macros/s/AKfycbyvnzD48ihAt9sb7VJL1_RNZLT1o269WnKG7KJpT0ulMLBWVw4dwwudQr8ufAhegSfF/exec"></iframe>
 </body>
 </html>
+
