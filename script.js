@@ -1,111 +1,68 @@
-let allNames = [];
-let cadetMerit = 0;
-const apiUrl = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"; // ← Replace with your Web App URL
+const apiUrl = "YOUR_WEB_APP_URL"; // replace with your Google Apps Script URL
+let storeOpen = true; // default store status
 
-function initPage(page) {
-  if (page === "merit") setupMeritLookup();
-  if (page === "store") setupStore();
+async function loadStore() {
+  const container = document.getElementById("store-container");
+  try {
+    const res = await fetch(`${apiUrl}?sheet=Store`);
+    const items = await res.json();
+
+    if (!storeOpen) {
+      container.innerHTML = `<p style="text-align:center; font-weight:bold; font-size:1.2em;">The store is currently closed.</p>`;
+      document.getElementById("store-status").innerText = "Store Status: CLOSED";
+      return;
+    }
+
+    container.innerHTML = items.map(item => `
+      <div class="item">
+        <h3>${item.Name}</h3>
+        <p>Category: ${item.Category}</p>
+        <p>Cost: ${item.Cost}</p>
+        <button onclick="buyItem('${item.Name}', '${item.Category}', ${item.Cost})">Buy</button>
+      </div>
+    `).join('');
+
+    document.getElementById("store-status").innerText = "Store Status: OPEN";
+
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = `<p style="text-align:center; font-weight:bold;">Failed to load store items.</p>`;
+  }
 }
 
-// ----------- Merit Lookup Page -----------
-function setupMeritLookup() {
-  // Load names for autocomplete
-  fetch(`${apiUrl}?action=getAllNames`)
-    .then(r=>r.json())
-    .then(names => allNames = names);
+async function buyItem(name, category, cost) {
+  if (!storeOpen) {
+    alert("The store is closed. You cannot purchase items now.");
+    return;
+  }
 
-  const cadetInput = document.getElementById('cadetName');
-  const suggestions = document.getElementById('suggestions');
+  const data = {
+    Name: prompt("Enter your full name:"),
+    Category: category,
+    Batch: prompt("Enter your batch:"),
+    Section: prompt("Enter your section:"),
+    Item: name,
+    Cost: cost,
+    Timestamp: new Date().toLocaleString()
+  };
 
-  cadetInput.addEventListener('input', e=>{
-    const val = e.target.value.toUpperCase();
-    if(!val){ suggestions.classList.remove('show'); suggestions.innerHTML=''; return; }
-    const matches = allNames.filter(n=>n.toUpperCase().includes(val)).slice(0,4);
-    suggestions.innerHTML='';
-    matches.forEach(name=>{
-      const div = document.createElement('div');
-      div.className='suggestion-item';
-      div.textContent=name;
-      div.onclick = () => { cadetInput.value=name; suggestions.classList.remove('show'); };
-      suggestions.appendChild(div);
-    });
-    if(matches.length) suggestions.classList.add('show');
+  await fetch(apiUrl, {
+    method: "POST",
+    body: JSON.stringify(data)
   });
 
-  document.getElementById('meritForm').addEventListener('submit', e=>{
-    e.preventDefault();
-    const name = cadetInput.value.trim();
-    if(!name) return alert('Enter cadet name');
-    document.getElementById('result').classList.add('show');
-    document.getElementById('cadetResultName').textContent=name;
-    document.getElementById('meritPoints').textContent='Loading…';
-    document.getElementById('activityContainer').innerHTML='Loading…';
-
-    fetch(`${apiUrl}?action=getMerits&name=${encodeURIComponent(name)}`)
-      .then(r=>r.json())
-      .then(m=>{
-        document.getElementById('meritPoints').textContent = m==='Not found' ? 'No record' : m;
-      });
-
-    fetch(`${apiUrl}?action=getActivities&name=${encodeURIComponent(name)}`)
-      .then(r=>r.json())
-      .then(a=>{
-        const actContainer = document.getElementById('activityContainer');
-        actContainer.innerHTML='';
-        if(!a.length) { actContainer.innerHTML='<p style="text-align:center;color:#999;">No recent activity.</p>'; return; }
-        a.forEach(item=>{
-          const parts = item.split('  ');
-          const div = document.createElement('div');
-          div.className='activity-item';
-          div.innerHTML=`<span>${parts[0]}</span><span>${parts[1]}</span>`;
-          actContainer.appendChild(div);
-        });
-      });
-  });
+  alert(`Order recorded for ${data.Name}!`);
+  loadStore(); // refresh store
 }
 
-// ----------- Store Page -----------
-function setupStore() {
-  // Get cadet name
-  const cadetName = prompt("Enter your full name to view your merit balance:");
-  if(!cadetName) return alert('Name required');
-
-  fetch(`${apiUrl}?action=getMerits&name=${encodeURIComponent(cadetName)}`)
-    .then(r=>r.json())
-    .then(m=>{
-      cadetMerit = parseInt(m) || 0;
-      document.getElementById('meritBalance').textContent=cadetMerit;
-    });
-
-  const storeItems = [
-    {name:'Item A', cost:10},
-    {name:'Item B', cost:25},
-    {name:'Item C', cost:50},
-  ];
-
-  const container = document.getElementById('storeItems');
-  storeItems.forEach(item=>{
-    const div = document.createElement('div');
-    div.className='store-item';
-    div.innerHTML = `<span>${item.name} - ${item.cost} merits</span>`;
-    const btn = document.createElement('button');
-    btn.textContent='Buy';
-    btn.onclick = () => buyItem(item, cadetName);
-    div.appendChild(btn);
-    container.appendChild(div);
-  });
-}
-
-function buyItem(item, name){
-  if(cadetMerit < item.cost){ alert("Not enough merits"); return; }
-  cadetMerit -= item.cost;
-  document.getElementById('meritBalance').textContent = cadetMerit;
-
-  fetch(`${apiUrl}?action=addOrder&name=${encodeURIComponent(name)}&item=${encodeURIComponent(item.name)}&cost=${item.cost}`)
-    .then(r=>r.json())
-    .then(res=>{
-      if(res.status==='success') alert(`Order successful! ${item.cost} merits deducted.`);
-      else alert('Order failed, try again.');
-    });
+function adminLogin() {
+  const password = prompt("Enter admin password:");
+  if (password === "admin123") { // change password if needed
+    storeOpen = !storeOpen;
+    alert(`Store is now ${storeOpen ? "OPEN" : "CLOSED"}.`);
+    loadStore();
+  } else {
+    alert("Incorrect password.");
+  }
 }
 
