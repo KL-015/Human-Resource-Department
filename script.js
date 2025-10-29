@@ -1,6 +1,6 @@
 let allNames = [];
 let cadetMerit = 0;
-const apiUrl = "https://script.google.com/macros/s/AKfycbyvnzD48ihAt9sb7VJL1_RNZLT1o269WnKG7KJpT0ulMLBWVw4dwwudQr8ufAhegSfF/exec"; // ← Replace with your Web App URL
+const apiUrl = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"; // ← Replace with your Web App URL
 
 function initPage(page) {
   if (page === "merit") setupMeritLookup();
@@ -68,4 +68,44 @@ function setupMeritLookup() {
 function setupStore() {
   // Get cadet name
   const cadetName = prompt("Enter your full name to view your merit balance:");
-  if(!cad
+  if(!cadetName) return alert('Name required');
+
+  fetch(`${apiUrl}?action=getMerits&name=${encodeURIComponent(cadetName)}`)
+    .then(r=>r.json())
+    .then(m=>{
+      cadetMerit = parseInt(m) || 0;
+      document.getElementById('meritBalance').textContent=cadetMerit;
+    });
+
+  const storeItems = [
+    {name:'Item A', cost:10},
+    {name:'Item B', cost:25},
+    {name:'Item C', cost:50},
+  ];
+
+  const container = document.getElementById('storeItems');
+  storeItems.forEach(item=>{
+    const div = document.createElement('div');
+    div.className='store-item';
+    div.innerHTML = `<span>${item.name} - ${item.cost} merits</span>`;
+    const btn = document.createElement('button');
+    btn.textContent='Buy';
+    btn.onclick = () => buyItem(item, cadetName);
+    div.appendChild(btn);
+    container.appendChild(div);
+  });
+}
+
+function buyItem(item, name){
+  if(cadetMerit < item.cost){ alert("Not enough merits"); return; }
+  cadetMerit -= item.cost;
+  document.getElementById('meritBalance').textContent = cadetMerit;
+
+  fetch(`${apiUrl}?action=addOrder&name=${encodeURIComponent(name)}&item=${encodeURIComponent(item.name)}&cost=${item.cost}`)
+    .then(r=>r.json())
+    .then(res=>{
+      if(res.status==='success') alert(`Order successful! ${item.cost} merits deducted.`);
+      else alert('Order failed, try again.');
+    });
+}
+
