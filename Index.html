@@ -3,27 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Merit Store</title>
+  <title>Merit Store</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <h1>Online Merit Store</h1>
-    <p>Your current merit balance: <span id="meritBalance">Loading…</span></p>
-    <a href="merit.html" class="btn">Check Merit Lookup</a>
-  </div>
+  <header>
+    <h1>CADET MERIT STORE</h1>
+    <nav>
+      <a href="index.html" class="active">Store</a>
+      <a href="merit.html">Merit Look-up</a>
+    </nav>
+  </header>
 
-  <div class="store-items" id="storeItems"></div>
+  <main>
+    <section class="container">
+      <h2>Available Items</h2>
+      <div id="store-container" class="grid"></div>
 
-  <div class="footer">
-    <p>Merit System © 2024 | Human Resource Department</p>
-  </div>
-</div>
-<script src="script.js"></script>
-<script>
-const page = "store";
-initPage(page);
-</script>
+      <!-- Admin controls -->
+      <div style="margin-top:20px; text-align:center;">
+        <button onclick="adminLogin()">Admin Login</button>
+        <p id="store-status" style="margin-top:10px; font-weight:bold;"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Human Resource Department | Merit Store System</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    loadStore();
+  </script>
 </body>
 </html>
