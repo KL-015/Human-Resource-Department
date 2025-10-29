@@ -1,28 +1,115 @@
-/* Base Styles */
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; background: linear-gradient(135deg, #000 0%, #333 50%, #fff 100%); color:#fff; }
-.container { background:#1a1a1a; border-radius:8px; padding:25px; max-width:450px; width:100%; box-shadow:0 2px 10px rgba(0,0,0,0.3); }
-.header { text-align:center; margin-bottom:25px; }
-.header h1 { font-size:24px; margin-bottom:10px; }
-.header p { font-size:14px; opacity:0.8; }
-.btn { display:inline-block; padding:10px 15px; border-radius:5px; text-decoration:none; color:#fff; background:#646cff; margin:5px; transition:0.3s; }
-.btn:hover { background:#5050ff; }
-.form-group { margin-bottom:20px; position:relative; }
-input[type=text], textarea { width:100%; padding:10px 12px; border-radius:4px; border:1px solid #555; background:#242424; color:#fff; }
-input[type=text]:focus, textarea:focus { outline:none; border-color:#646cff; background:#1a1a1a; }
-.result { margin-top:20px; display:none; }
-.result.show { display:block; }
-.merit-points { font-size:36px; font-weight:700; text-align:center; margin:10px 0; }
-.store-items { display:flex; flex-direction:column; gap:15px; }
-.store-item { background:#242424; padding:15px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; }
-.store-item button { padding:8px 12px; border:none; border-radius:4px; background:#646cff; color:#fff; cursor:pointer; transition:0.2s; }
-.store-item button:hover { background:#5050ff; }
-.activity-container { max-height:200px; overflow-y:auto; margin-top:10px; background:#242424; border-radius:4px; padding:5px; }
-.activity-item { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #555; }
-.activity-item:last-child { border-bottom:none; }
-.suggestions { position:absolute; background:#242424; width:100%; max-width:450px; border:1px solid #555; border-radius:4px; display:none; z-index:10; margin-top:2px; }
-.suggestions.show { display:block; }
-.suggestion-item { padding:8px 10px; cursor:pointer; border-bottom:1px solid #555; }
-.suggestion-item:last-child { border-bottom:none; }
-.suggestion-item:hover { background:#5050ff; }
-.footer { margin-top:25px; font-size:12px; text-align:center; opacity:0.6; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #000, #333, #fff);
+  color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  text-align: center;
+  padding: 20px 0;
+  background: rgba(0, 0, 0, 0.7);
+  border-bottom: 2px solid #666;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8em;
+  letter-spacing: 1px;
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 12px;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+nav a:hover, nav a.active {
+  color: #00bcd4;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 20px 30px;
+  width: 90%;
+  max-width: 900px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+.container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.item {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255,255,255,0.1);
+  transition: transform 0.3s, background 0.3s;
+}
+
+.item:hover {
+  transform: translateY(-5px);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.item h3 {
+  margin-top: 0;
+  color: #00bcd4;
+}
+
+.item p {
+  margin: 5px 0;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #00bcd4;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #0097a7;
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 0.9em;
+  border-top: 2px solid #666;
+}
+
