@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Merit Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Online Merit Store</h1>
+    <p>Your current merit balance: <span id="meritBalance">Loading…</span></p>
+    <a href="merit.html" class="btn">Check Merit Lookup</a>
+  </div>
+
+  <div class="store-items" id="storeItems"></div>
+
+  <div class="footer">
+    <p>Merit System © 2024 | Human Resource Department</p>
+  </div>
+</div>
+<script src="script.js"></script>
+<script>
+const page = "store";
+initPage(page);
+</script>
+</body>
+</html>

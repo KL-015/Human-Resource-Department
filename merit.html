@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadet Merit Lookup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Cadet Merit Lookup</h1>
+    <p>Enter a cadet's name to check their merit points</p>
+    <a href="index.html" class="btn">Go to Store</a>
+  </div>
+
+  <form id="meritForm">
+    <div class="form-group">
+      <label for="cadetName">Cadet Name</label>
+      <input type="text" id="cadetName" placeholder="Enter cadet's full name" autocomplete="off">
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+    <button type="submit" class="btn">Check Merit</button>
+  </form>
+
+  <div class="result" id="result">
+    <h2 id="cadetResultName">Cadet Name</h2>
+    <div class="merit-points" id="meritPoints">–</div>
+    <div class="recent-activity">
+      <h3>Recent Activity</h3>
+      <div id="activityContainer" class="activity-container"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Merit System © 2024 | Human Resource Department</p>
+  </div>
+</div>
+<script src="script.js"></script>
+<script>
+const page = "merit";
+initPage(page);
+</script>
+</body>
+</html>
