@@ -128,57 +128,16 @@
             background: white;
             z-index: 1000;
             display: none;
-            flex-direction: column;
-        }
-        
-        .iframe-header {
-            background: linear-gradient(to right, #0a0a0a, #2d2d2d, #5a5a5a);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .iframe-title {
-            color: white;
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .close-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: rotate(90deg);
         }
         
         iframe {
             width: 100%;
             height: 100%;
             border: none;
-            flex-grow: 1;
         }
         
         .active {
-            display: flex;
+            display: block;
         }
         
         .loading {
@@ -190,6 +149,7 @@
             flex-direction: column;
             align-items: center;
             color: #666;
+            z-index: 1001;
         }
         
         .spinner {
@@ -281,15 +241,6 @@
     </div>
 
     <div class="fullscreen-iframe" id="storeFrame">
-        <div class="iframe-header">
-            <div class="iframe-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>
-                </svg>
-                Merit Store
-            </div>
-            <button class="close-btn" id="closeStore">×</button>
-        </div>
         <div class="loading" id="storeLoading">
             <div class="spinner"></div>
             <p>Loading Merit Store...</p>
@@ -298,15 +249,6 @@
     </div>
     
     <div class="fullscreen-iframe" id="lookupFrame">
-        <div class="iframe-header">
-            <div class="iframe-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                </svg>
-                Merit Look-up
-            </div>
-            <button class="close-btn" id="closeLookup">×</button>
-        </div>
         <div class="loading" id="lookupLoading">
             <div class="spinner"></div>
             <p>Loading Merit Look-up...</p>
@@ -320,8 +262,6 @@
             const lookupBtn = document.getElementById('lookupBtn');
             const storeFrame = document.getElementById('storeFrame');
             const lookupFrame = document.getElementById('lookupFrame');
-            const closeStore = document.getElementById('closeStore');
-            const closeLookup = document.getElementById('closeLookup');
             const storeLoading = document.getElementById('storeLoading');
             const lookupLoading = document.getElementById('lookupLoading');
             const body = document.body;
@@ -361,14 +301,6 @@
             
             lookupBtn.addEventListener('click', function() {
                 showFrame(lookupFrame, lookupLoading, lookupUrl);
-            });
-            
-            closeStore.addEventListener('click', function() {
-                hideAllFrames();
-            });
-            
-            closeLookup.addEventListener('click', function() {
-                hideAllFrames();
             });
             
             // Close iframe with Escape key
