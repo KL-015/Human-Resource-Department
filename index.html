@@ -150,6 +150,7 @@
             align-items: center;
             color: #666;
             z-index: 1001;
+            text-align: center;
         }
         
         .spinner {
@@ -165,6 +166,45 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .error-message h3 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .error-message p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .fallback-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(to right, #2d2d2d, #4a4a4a);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid #5a5a5a;
+        }
+        
+        .fallback-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .instructions {
@@ -245,7 +285,20 @@
             <div class="spinner"></div>
             <p>Loading Merit Store...</p>
         </div>
-        <iframe src=""></iframe>
+        <div class="loading" id="storeError" style="display: none;">
+            <div class="error-message">
+                <h3>Unable to Load Content</h3>
+                <p>The Merit Store cannot be displayed in an embedded view due to security restrictions.</p>
+                <p>Click the button below to open it in a new tab:</p>
+                <a href="https://script.google.com/macros/s/AKfycbwe7nAGfD6XQ6zMQ_QdjO6JB9ahMcLljGsAdhFqvVCxgs4-_PiWvZT1FWjYx15LQJJo/exec" 
+                   class="fallback-link" 
+                   target="_blank"
+                   onclick="hideAllFrames()">
+                    Open Merit Store in New Tab
+                </a>
+            </div>
+        </div>
+        <iframe src="" id="storeIframe"></iframe>
     </div>
     
     <div class="fullscreen-iframe" id="lookupFrame">
@@ -253,10 +306,33 @@
             <div class="spinner"></div>
             <p>Loading Merit Look-up...</p>
         </div>
-        <iframe src=""></iframe>
+        <div class="loading" id="lookupError" style="display: none;">
+            <div class="error-message">
+                <h3>Unable to Load Content</h3>
+                <p>The Merit Look-up cannot be displayed in an embedded view due to security restrictions.</p>
+                <p>Click the button below to open it in a new tab:</p>
+                <a href="https://script.google.com/macros/s/AKfycbyvnzD48ihAt9sb7VJL1_RNZLT1o269WnKG7KJpT0ulMLBWVw4dwwudQr8ufAhegSfF/exec" 
+                   class="fallback-link" 
+                   target="_blank"
+                   onclick="hideAllFrames()">
+                    Open Merit Look-up in New Tab
+                </a>
+            </div>
+        </div>
+        <iframe src="" id="lookupIframe"></iframe>
     </div>
 
     <script>
+        function hideAllFrames() {
+            const storeFrame = document.getElementById('storeFrame');
+            const lookupFrame = document.getElementById('lookupFrame');
+            const body = document.body;
+            
+            storeFrame.classList.remove('active');
+            lookupFrame.classList.remove('active');
+            body.classList.remove('fullscreen-active');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const storeBtn = document.getElementById('storeBtn');
             const lookupBtn = document.getElementById('lookupBtn');
@@ -264,43 +340,57 @@
             const lookupFrame = document.getElementById('lookupFrame');
             const storeLoading = document.getElementById('storeLoading');
             const lookupLoading = document.getElementById('lookupLoading');
+            const storeError = document.getElementById('storeError');
+            const lookupError = document.getElementById('lookupError');
+            const storeIframe = document.getElementById('storeIframe');
+            const lookupIframe = document.getElementById('lookupIframe');
             const body = document.body;
             
             const storeUrl = "https://script.google.com/macros/s/AKfycbwe7nAGfD6XQ6zMQ_QdjO6JB9ahMcLljGsAdhFqvVCxgs4-_PiWvZT1FWjYx15LQJJo/exec";
             const lookupUrl = "https://script.google.com/macros/s/AKfycbyvnzD48ihAt9sb7VJL1_RNZLT1o269WnKG7KJpT0ulMLBWVw4dwwudQr8ufAhegSfF/exec";
             
-            function hideAllFrames() {
-                storeFrame.classList.remove('active');
-                lookupFrame.classList.remove('active');
-                body.classList.remove('fullscreen-active');
-            }
-            
-            function showFrame(frame, loading, url) {
+            function showFrame(frame, loading, error, iframe, url) {
                 hideAllFrames();
                 frame.classList.add('active');
                 body.classList.add('fullscreen-active');
                 
-                // Show loading indicator
+                // Reset states
                 loading.style.display = 'flex';
+                error.style.display = 'none';
+                iframe.style.display = 'none';
                 
-                // Load the iframe content if not already loaded
-                const iframe = frame.querySelector('iframe');
-                if (!iframe.src) {
-                    iframe.src = url;
-                }
+                // Set iframe source
+                iframe.src = url;
                 
-                // Hide loading when iframe loads
+                // Set timeout to show error if iframe doesn't load
+                const loadTimeout = setTimeout(() => {
+                    if (iframe.style.display === 'none') {
+                        loading.style.display = 'none';
+                        error.style.display = 'flex';
+                    }
+                }, 5000); // 5 second timeout
+                
+                // Handle iframe load
                 iframe.onload = function() {
+                    clearTimeout(loadTimeout);
                     loading.style.display = 'none';
+                    iframe.style.display = 'block';
+                };
+                
+                // Handle iframe errors
+                iframe.onerror = function() {
+                    clearTimeout(loadTimeout);
+                    loading.style.display = 'none';
+                    error.style.display = 'flex';
                 };
             }
             
             storeBtn.addEventListener('click', function() {
-                showFrame(storeFrame, storeLoading, storeUrl);
+                showFrame(storeFrame, storeLoading, storeError, storeIframe, storeUrl);
             });
             
             lookupBtn.addEventListener('click', function() {
-                showFrame(lookupFrame, lookupLoading, lookupUrl);
+                showFrame(lookupFrame, lookupLoading, lookupError, lookupIframe, lookupUrl);
             });
             
             // Close iframe with Escape key
