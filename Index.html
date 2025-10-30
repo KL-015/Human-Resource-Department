@@ -1,40 +1,383 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Merit Store</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merit Management Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #2d2d2d, #5a5a5a);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .fullscreen-active .container {
+            opacity: 0;
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #ffffff, #cccccc, #999999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.8;
+            color: #e0e0e0;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 18px 35px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-store {
+            background: linear-gradient(to right, #2d2d2d, #4a4a4a, #2d2d2d);
+            color: white;
+            border: 1px solid #5a5a5a;
+        }
+        
+        .btn-lookup {
+            background: linear-gradient(to right, #4a4a4a, #7a7a7a, #4a5a5a);
+            color: white;
+            border: 1px solid #9a9a9a;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .fullscreen-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .iframe-header {
+            background: linear-gradient(to right, #0a0a0a, #2d2d2d, #5a5a5a);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .iframe-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            flex-grow: 1;
+        }
+        
+        .active {
+            display: flex;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #2d2d2d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            color: #b0b0b0;
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #aaaaaa, #666666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @media (max-width: 768px) {
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .container {
+                padding: 25px 20px;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>CADET MERIT STORE</h1>
-    <nav>
-      <a href="index.html" class="active">Store</a>
-      <a href="merit.html">Merit Look-up</a>
-    </nav>
-  </header>
+    <div class="container">
+        <div class="logo">MERIT</div>
+        <h1>Management Portal</h1>
+        <p class="subtitle">Access tools with a single click</p>
+        
+        <div class="button-container">
+            <button class="btn btn-store" id="storeBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>
+                </svg>
+                Merit Store
+            </button>
+            <button class="btn btn-lookup" id="lookupBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+                Merit Look-up
+            </button>
+        </div>
+        
+        <p class="instructions">Click on either button to open the tool in full-screen mode</p>
+    </div>
 
-  <main>
-    <section class="container">
-      <h2>Available Items</h2>
-      <div id="store-container" class="grid"></div>
+    <div class="fullscreen-iframe" id="storeFrame">
+        <div class="iframe-header">
+            <div class="iframe-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>
+                </svg>
+                Merit Store
+            </div>
+            <button class="close-btn" id="closeStore">×</button>
+        </div>
+        <div class="loading" id="storeLoading">
+            <div class="spinner"></div>
+            <p>Loading Merit Store...</p>
+        </div>
+        <iframe src=""></iframe>
+    </div>
+    
+    <div class="fullscreen-iframe" id="lookupFrame">
+        <div class="iframe-header">
+            <div class="iframe-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+                Merit Look-up
+            </div>
+            <button class="close-btn" id="closeLookup">×</button>
+        </div>
+        <div class="loading" id="lookupLoading">
+            <div class="spinner"></div>
+            <p>Loading Merit Look-up...</p>
+        </div>
+        <iframe src=""></iframe>
+    </div>
 
-      <!-- Admin controls -->
-      <div style="margin-top:20px; text-align:center;">
-        <button onclick="adminLogin()">Admin Login</button>
-        <p id="store-status" style="margin-top:10px; font-weight:bold;"></p>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 Human Resource Department | Merit Store System</p>
-  </footer>
-
-  <script src="script.js"></script>
-  <script>
-    loadStore();
-  </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const storeBtn = document.getElementById('storeBtn');
+            const lookupBtn = document.getElementById('lookupBtn');
+            const storeFrame = document.getElementById('storeFrame');
+            const lookupFrame = document.getElementById('lookupFrame');
+            const closeStore = document.getElementById('closeStore');
+            const closeLookup = document.getElementById('closeLookup');
+            const storeLoading = document.getElementById('storeLoading');
+            const lookupLoading = document.getElementById('lookupLoading');
+            const body = document.body;
+            
+            const storeUrl = "https://script.google.com/macros/s/AKfycbwe7nAGfD6XQ6zMQ_QdjO6JB9ahMcLljGsAdhFqvVCxgs4-_PiWvZT1FWjYx15LQJJo/exec";
+            const lookupUrl = "https://script.google.com/macros/s/AKfycbyvnzD48ihAt9sb7VJL1_RNZLT1o269WnKG7KJpT0ulMLBWVw4dwwudQr8ufAhegSfF/exec";
+            
+            function hideAllFrames() {
+                storeFrame.classList.remove('active');
+                lookupFrame.classList.remove('active');
+                body.classList.remove('fullscreen-active');
+            }
+            
+            function showFrame(frame, loading, url) {
+                hideAllFrames();
+                frame.classList.add('active');
+                body.classList.add('fullscreen-active');
+                
+                // Show loading indicator
+                loading.style.display = 'flex';
+                
+                // Load the iframe content if not already loaded
+                const iframe = frame.querySelector('iframe');
+                if (!iframe.src) {
+                    iframe.src = url;
+                }
+                
+                // Hide loading when iframe loads
+                iframe.onload = function() {
+                    loading.style.display = 'none';
+                };
+            }
+            
+            storeBtn.addEventListener('click', function() {
+                showFrame(storeFrame, storeLoading, storeUrl);
+            });
+            
+            lookupBtn.addEventListener('click', function() {
+                showFrame(lookupFrame, lookupLoading, lookupUrl);
+            });
+            
+            closeStore.addEventListener('click', function() {
+                hideAllFrames();
+            });
+            
+            closeLookup.addEventListener('click', function() {
+                hideAllFrames();
+            });
+            
+            // Close iframe with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideAllFrames();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
