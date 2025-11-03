@@ -3,164 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merit Management Portal</title>
+    <title>Merit Management Portal - Dashboard</title>
     <style>
+        /* BASE & LAYOUT */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif; /* A sharp, modern font */
         }
         
         body {
-            background: linear-gradient(135deg, #0a0a0a, #2d2d2d, #5a5a5a);
+            background-color: #121212; /* Very dark background */
+            display: flex; /* Use flexbox for the main layout */
             min-height: 100vh;
+            color: #e0e0e0;
+            transition: all 0.4s ease;
+        }
+
+        /* SIDEBAR (The Navigation Area) */
+        .sidebar {
+            width: 250px;
+            min-width: 250px;
+            background-color: #1f1f1f; /* Slightly lighter than body */
+            padding: 25px 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            padding: 20px;
-            transition: all 0.3s ease;
+            border-right: 1px solid #333;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            z-index: 10;
         }
-        
-        .container {
-            max-width: 800px;
-            width: 90%;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .fullscreen-active .container {
-            opacity: 0;
-            transform: scale(0.9);
-            pointer-events: none;
-        }
-        
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, #ffffff, #cccccc, #999999);
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            padding: 10px 0 30px 0;
+            letter-spacing: 1px;
+            /* New Accent Gradient (Professional Green/Teal) */
+            background: linear-gradient(90deg, #64ffda, #00bfa5);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+
+        .nav-heading {
+            font-size: 0.9rem;
+            color: #888;
+            margin: 20px 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 40px;
-            opacity: 0.8;
+        /* NAVIGATION BUTTONS */
+        .btn {
+            padding: 15px 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+            background-color: transparent;
             color: #e0e0e0;
         }
         
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 18px 35px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
-        }
-        
-        .btn:hover::before {
-            left: 100%;
-        }
-        
-        .btn-store {
-            background: linear-gradient(to right, #2d2d2d, #4a4a4a, #2d2d2d);
-            color: white;
-            border: 1px solid #5a5a5a;
-        }
-        
-        .btn-lookup {
-            background: linear-gradient(to right, #4a4a4a, #7a7a7a, #4a5a5a);
-            color: white;
-            border: 1px solid #9a9a9a;
-        }
-        
         .btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+            background-color: #2a2a2a;
+            color: #64ffda; /* Hover color accent */
+            transform: translateX(5px);
         }
-        
+
         .btn:active {
-            transform: translateY(0);
+            transform: translateX(0);
         }
-        
+
+        .btn svg {
+            fill: currentColor; /* Use the button's text color */
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-card {
+            background-color: #1f1f1f;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            text-align: center;
+        }
+
+        .welcome-card h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #64ffda; /* Accent color for the main heading */
+        }
+
+        .welcome-card p {
+            font-size: 1.1rem;
+            color: #a0a0a0;
+            margin-bottom: 20px;
+        }
+
+        /* FULLSCREEN IFRAME OVERLAY */
         .fullscreen-iframe {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: white;
+            background-color: #f4f7f6;
             z-index: 1000;
             display: none;
         }
-        
+
+        .active {
+            display: block;
+        }
+
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        
-        .active {
-            display: block;
-        }
-        
-        .loading {
+
+        /* Loading & Error Styles (Adjusted for new colors) */
+        .loading, .error-message-wrapper {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #666;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.95);
             z-index: 1001;
-            text-align: center;
+            color: #333;
         }
         
         .spinner {
             width: 50px;
             height: 50px;
-            border: 5px solid rgba(0, 0, 0, 0.1);
-            border-top: 5px solid #2d2d2d;
+            border: 6px solid #e3e3e3;
+            border-top: 6px solid #00bfa5; /* Matching accent color */
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         @keyframes spin {
@@ -169,131 +178,125 @@
         }
         
         .error-message {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 30px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        
-        .error-message h3 {
-            color: #e74c3c;
-            margin-bottom: 15px;
-            font-size: 1.4rem;
-        }
-        
-        .error-message p {
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            color: #333;
         }
         
         .fallback-link {
             display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(to right, #2d2d2d, #4a4a4a);
+            padding: 14px 30px;
+            background-color: #00bfa5; /* Accent color */
             color: white;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
-            transition: all 0.3s ease;
-            border: 1px solid #5a5a5a;
+            transition: background-color 0.3s ease;
         }
         
         .fallback-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background-color: #00897b;
         }
-        
-        .instructions {
-            margin-top: 30px;
-            font-size: 0.9rem;
-            opacity: 0.7;
-            color: #b0b0b0;
-        }
-        
-        .logo {
-            margin-bottom: 20px;
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #ffffff, #aaaaaa, #666666);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
+
+        /* RESPONSIVENESS (Crucial for sidebar layout) */
         @media (max-width: 768px) {
-            .button-container {
-                flex-direction: column;
-                align-items: center;
+            body {
+                flex-direction: column; /* Stack sidebar and main content vertically */
             }
-            
-            .btn {
+            .sidebar {
                 width: 100%;
-                max-width: 300px;
-                justify-content: center;
+                min-width: 100%;
+                height: auto;
+                flex-direction: row; /* Horizontal layout for smaller screens */
+                justify-content: space-between;
+                align-items: center;
+                border-right: none;
+                border-bottom: 1px solid #333;
+                padding: 15px 20px;
             }
-            
-            h1 {
-                font-size: 2.2rem;
+
+            .logo {
+                padding: 0;
+                font-size: 1.5rem;
             }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8rem;
+
+            .nav-heading {
+                display: none; /* Hide heading on mobile */
             }
-            
-            .container {
-                padding: 25px 20px;
+
+            .button-container {
+                flex-direction: row; /* Buttons side-by-side on mobile */
+                gap: 5px;
             }
-            
+
             .btn {
-                padding: 15px 25px;
-                font-size: 1.1rem;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .btn span {
+                /* Hide button text to show only icon for a compact mobile view */
+                display: none; 
+            }
+            
+            .main-content {
+                padding: 30px 20px;
+                flex-grow: 1;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="sidebar">
         <div class="logo">MERIT</div>
-        <h1>Management Portal</h1>
-        <p class="subtitle">Access tools with a single click</p>
         
+        <p class="nav-heading">Applications</p>
         <div class="button-container">
-            <button class="btn btn-store" id="storeBtn">
+            <button class="btn" id="storeBtn" title="Merit Store">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h1v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5h6V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zM4 15h3v-5H4v5zm5-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3zm3 0h-2v3h2v-3z"/>
                 </svg>
-                Merit Store
+                <span>Merit Store</span>
             </button>
-            <button class="btn btn-lookup" id="lookupBtn">
+            <button class="btn" id="lookupBtn" title="Merit Look-up">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                 </svg>
-                Merit Look-up
+                <span>Merit Look-up</span>
             </button>
         </div>
-        
-        <p class="instructions">Click on either button to open the tool in full-screen mode</p>
     </div>
 
+    <div class="main-content" id="mainContent">
+        <div class="welcome-card">
+            <h1>Welcome to the Portal!</h1>
+            <p>Select an application from the left navigation panel to begin.</p>
+            <p style="font-size: 0.9rem; opacity: 0.6; margin-top: 30px;">
+                *Note: Press the ESC key to close any full-screen application and return to this dashboard.*
+            </p>
+        </div>
+    </div>
+    
     <div class="fullscreen-iframe" id="storeFrame">
         <div class="loading" id="storeLoading">
             <div class="spinner"></div>
-            <p>Loading Merit Store...</p>
+            <p style="color: #444; font-weight: 600;">Loading Merit Store...</p>
         </div>
-        <div class="loading" id="storeError" style="display: none;">
+        <div class="loading error-message-wrapper" id="storeError" style="display: none;">
             <div class="error-message">
-                <h3>Unable to Load Content</h3>
-                <p>The Merit Store cannot be displayed in an embedded view due to security restrictions.</p>
-                <p>Click the button below to open it in a new tab:</p>
+                <h3>🚫 Load Error</h3>
+                <p>The Merit Store cannot be displayed directly here due to browser security restrictions (X-Frame-Options/CORS policy).</p>
+                <p>Please use the link below to open the tool in a separate tab:</p>
                 <a href="https://script.google.com/macros/s/AKfycbwe7nAGfD6XQ6zMQ_QdjO6JB9ahMcLljGsAdhFqvVCxgs4-_PiWvZT1FWjYx15LQJJo/exec" 
-                   class="fallback-link" 
-                   target="_blank"
-                   onclick="hideAllFrames()">
+                    class="fallback-link" 
+                    target="_blank"
+                    onclick="hideAllFrames()">
                     Open Merit Store in New Tab
                 </a>
             </div>
@@ -304,17 +307,17 @@
     <div class="fullscreen-iframe" id="lookupFrame">
         <div class="loading" id="lookupLoading">
             <div class="spinner"></div>
-            <p>Loading Merit Look-up...</p>
+            <p style="color: #444; font-weight: 600;">Loading Merit Look-up...</p>
         </div>
-        <div class="loading" id="lookupError" style="display: none;">
+        <div class="loading error-message-wrapper" id="lookupError" style="display: none;">
             <div class="error-message">
-                <h3>Unable to Load Content</h3>
-                <p>The Merit Look-up cannot be displayed in an embedded view due to security restrictions.</p>
-                <p>Click the button below to open it in a new tab:</p>
+                <h3>🚫 Load Error</h3>
+                <p>The Merit Look-up cannot be displayed directly here due to browser security restrictions (X-Frame-Options/CORS policy).</p>
+                <p>Please use the link below to open the tool in a separate tab:</p>
                 <a href="https://script.google.com/macros/s/AKfycbyvnzD48ihAt9sb7VJL1_RNZLT1o269WnKG7KJpT0ulMLBWVw4dwwudQr8ufAhegSfF/exec" 
-                   class="fallback-link" 
-                   target="_blank"
-                   onclick="hideAllFrames()">
+                    class="fallback-link" 
+                    target="_blank"
+                    onclick="hideAllFrames()">
                     Open Merit Look-up in New Tab
                 </a>
             </div>
@@ -326,11 +329,18 @@
         function hideAllFrames() {
             const storeFrame = document.getElementById('storeFrame');
             const lookupFrame = document.getElementById('lookupFrame');
+            const mainContent = document.getElementById('mainContent');
             const body = document.body;
             
             storeFrame.classList.remove('active');
             lookupFrame.classList.remove('active');
-            body.classList.remove('fullscreen-active');
+            
+            // Show the main content area again
+            mainContent.style.display = 'flex'; 
+            
+            // Clear iframe src to stop potential loading in the background
+            document.getElementById('storeIframe').src = "";
+            document.getElementById('lookupIframe').src = "";
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -338,50 +348,45 @@
             const lookupBtn = document.getElementById('lookupBtn');
             const storeFrame = document.getElementById('storeFrame');
             const lookupFrame = document.getElementById('lookupFrame');
+            const mainContent = document.getElementById('mainContent');
             const storeLoading = document.getElementById('storeLoading');
             const lookupLoading = document.getElementById('lookupLoading');
             const storeError = document.getElementById('storeError');
             const lookupError = document.getElementById('lookupError');
             const storeIframe = document.getElementById('storeIframe');
             const lookupIframe = document.getElementById('lookupIframe');
-            const body = document.body;
             
+            // URLs for the embedded tools
             const storeUrl = "https://script.google.com/macros/s/AKfycbwe7nAGfD6XQ6zMQ_QdjO6JB9ahMcLljGsAdhFqvVCxgs4-_PiWvZT1FWjYx15LQJJo/exec";
             const lookupUrl = "https://script.google.com/macros/s/AKfycbyvnzD48ihAt9sb7VJL1_RNZLT1o269WnKG7KJpT0ulMLBWVw4dwwudQr8ufAhegSfF/exec";
             
             function showFrame(frame, loading, error, iframe, url) {
                 hideAllFrames();
                 frame.classList.add('active');
-                body.classList.add('fullscreen-active');
                 
-                // Reset states
+                // Hide the main dashboard content when the iframe is active
+                mainContent.style.display = 'none'; 
+                
+                // Reset and Load
                 loading.style.display = 'flex';
                 error.style.display = 'none';
                 iframe.style.display = 'none';
-                
-                // Set iframe source
                 iframe.src = url;
                 
-                // Set timeout to show error if iframe doesn't load
+                // Timeout logic to display error if load fails
                 const loadTimeout = setTimeout(() => {
                     if (iframe.style.display === 'none') {
                         loading.style.display = 'none';
                         error.style.display = 'flex';
                     }
-                }, 5000); // 5 second timeout
+                }, 5000); 
                 
-                // Handle iframe load
+                // Handle successful load
                 iframe.onload = function() {
                     clearTimeout(loadTimeout);
                     loading.style.display = 'none';
+                    error.style.display = 'none';
                     iframe.style.display = 'block';
-                };
-                
-                // Handle iframe errors
-                iframe.onerror = function() {
-                    clearTimeout(loadTimeout);
-                    loading.style.display = 'none';
-                    error.style.display = 'flex';
                 };
             }
             
