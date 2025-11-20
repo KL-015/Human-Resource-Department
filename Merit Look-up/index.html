@@ -1,1 +1,24 @@
-
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Fullscreen Iframe</title>
+    <style>
+      /* make the iframe truly fullscreen with no extra UI */
+      html, body, #embed {
+        height: 100%;
+        margin: 0;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="embed" src="https://script.google.com/macros/s/AKfycbxThGQb6C_s3c-deGaScFrrrfYdYb38L1ehqSzR3r92-LWYIFvpq9odRYbCey1DCwjl/exec" frameborder="0" allowfullscreen></iframe>
+  </body>
+</html>
