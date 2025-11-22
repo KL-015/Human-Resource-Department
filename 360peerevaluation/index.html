@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Ranking System - Enrichment 360</title>
+    <title>Evaluation System - 360 Peer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -307,8 +307,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Enrichment 360 - Student Ranking System</h1>
-        <p class="description">Upload your Google Forms ranking data to calculate final student rankings</p>
+        <h1>360 Peer - Evaluation System</h1>
+        <p class="description">Upload your Google Forms ranking data to calculate final cadet rankings</p>
         
         <div class="instructions">
             <h3>How to use this system:</h3>
@@ -352,7 +352,7 @@
                     <thead>
                         <tr>
                             <th>Rank</th>
-                            <th>Student Name</th>
+                            <th>Cadet Name</th>
                             <th>Final Score</th>
                             <th>Percentage</th>
                             <th>Visual</th>
@@ -480,16 +480,16 @@
             
             function processRankingData(data) {
                 const errors = [];
-                const studentScores = {};
-                const studentRatings = {};
+                const cadetScores = {};
+                const cadetRatings = {};
                 
-                // Extract student names from headers (columns C to X)
-                const studentNames = new Set();
+                // Extract cadet names from headers (columns C to X)
+                const cadetNames = new Set();
                 if (data.length > 0) {
                     const headers = data[0];
                     for (let i = 2; i < headers.length; i++) {
                         if (headers[i] && headers[i].trim() !== '') {
-                            studentNames.add(headers[i].trim());
+                            cadetNames.add(headers[i].trim());
                         }
                     }
                 }
@@ -502,44 +502,44 @@
                     const raterName = row[1] ? row[1].trim() : null;
                     if (!raterName) continue;
                     
-                    // Initialize student if not exists
-                    if (!studentScores[raterName]) {
-                        studentScores[raterName] = 0;
-                        studentRatings[raterName] = 0;
+                    // Initialize cadet if not exists
+                    if (!cadetScores[raterName]) {
+                        cadetScores[raterName] = 0;
+                        cadetRatings[raterName] = 0;
                     }
                     
                     // Process each ranking in the row
                     for (let j = 2; j < row.length; j++) {
-                        const rankedStudent = row[j] ? row[j].trim() : null;
-                        if (!rankedStudent || rankedStudent === '') continue;
+                        const rankedcadet = row[j] ? row[j].trim() : null;
+                        if (!rankedcadet || rankedcadet === '') continue;
                         
                         // The rank position is determined by the column index
                         // Column C (index 2) is 2nd place, D (index 3) is 3rd, etc.
                         const rankPosition = j - 1; // So index 2 -> rank 2, index 3 -> rank 3, etc.
                         
-                        // Initialize student if not exists
-                        if (!studentScores[rankedStudent]) {
-                            studentScores[rankedStudent] = 0;
-                            studentRatings[rankedStudent] = 0;
+                        // Initialize cadet if not exists
+                        if (!cadetScores[rankedcadet]) {
+                            cadetScores[rankedcadet] = 0;
+                            cadetRatings[rankedcadet] = 0;
                         }
                         
-                        // Add to the student's score (lower rank number = better)
+                        // Add to the cadet's score (lower rank number = better)
                         // We invert so higher scores are better
                         const maxPossibleRank = row.length - 2; // Adjust based on form structure
                         const score = maxPossibleRank - rankPosition + 2;
                         
-                        studentScores[rankedStudent] += score;
-                        studentRatings[rankedStudent] += 1;
+                        cadetScores[rankedcadet] += score;
+                        cadetRatings[rankedcadet] += 1;
                         
-                        // Add to our set of all students
-                        studentNames.add(rankedStudent);
+                        // Add to our set of all cadets
+                        cadetNames.add(rankedcadet);
                     }
                 }
                 
                 // Calculate average scores and prepare results
                 const results = [];
-                for (const [name, totalScore] of Object.entries(studentScores)) {
-                    const ratingCount = studentRatings[name] || 1;
+                for (const [name, totalScore] of Object.entries(cadetScores)) {
+                    const ratingCount = cadetRatings[name] || 1;
                     const avgScore = totalScore / ratingCount;
                     results.push({
                         name: name,
@@ -554,43 +554,43 @@
                 
                 // Calculate percentages (100% for highest, 75% for lowest)
                 if (results.length > 0) {
-                    const totalStudents = results.length;
+                    const totalcadets = results.length;
                     
-                    results.forEach((student, index) => {
-                        student.rank = index + 1;
+                    results.forEach((cadet, index) => {
+                        cadet.rank = index + 1;
                         
                         // Calculate percentage based on rank position
                         // Rank 1 = 100%, last rank = 75%
-                        if (totalStudents === 1) {
-                            student.percentage = 100;
+                        if (totalcadets === 1) {
+                            cadet.percentage = 100;
                         } else {
-                            student.percentage = 100 - ((student.rank - 1) / (totalStudents - 1)) * 25;
+                            cadet.percentage = 100 - ((cadet.rank - 1) / (totalcadets - 1)) * 25;
                         }
                     });
                 }
                 
                 // Check for potential issues
-                const totalStudents = results.length;
-                if (totalStudents === 0) {
-                    errors.push("No student data found in the file.");
+                const totalcadets = results.length;
+                if (totalcadets === 0) {
+                    errors.push("No cadet data found in the file.");
                 }
                 
-                // Check for students with very few ratings
+                // Check for cadets with very few ratings
                 const expectedRatings = data.length - 1; // Number of respondents
-                results.forEach(student => {
-                    if (student.ratingCount < expectedRatings * 0.5) {
-                        errors.push(`${student.name} has relatively few ratings (${student.ratingCount} out of ${expectedRatings} possible).`);
+                results.forEach(cadet => {
+                    if (cadet.ratingCount < expectedRatings * 0.5) {
+                        errors.push(`${cadet.name} has relatively few ratings (${cadet.ratingCount} out of ${expectedRatings} possible).`);
                     }
                 });
                 
                 // Check for name variations
                 const nameVariations = {};
-                results.forEach(student => {
-                    const simpleName = student.name.replace(/,/g, '').toUpperCase().trim();
+                results.forEach(cadet => {
+                    const simpleName = cadet.name.replace(/,/g, '').toUpperCase().trim();
                     if (!nameVariations[simpleName]) {
                         nameVariations[simpleName] = [];
                     }
-                    nameVariations[simpleName].push(student.name);
+                    nameVariations[simpleName].push(cadet.name);
                 });
                 
                 Object.keys(nameVariations).forEach(simpleName => {
@@ -606,7 +606,7 @@
                 
                 return {
                     results: results,
-                    totalStudents: totalStudents,
+                    totalcadets: totalcadets,
                     totalResponses: data.length - 1,
                     nameVariations: nameVariations
                 };
@@ -619,8 +619,8 @@
                 // Display stats
                 statsSection.innerHTML = `
                     <div class="stat-card">
-                        <div class="stat-value">${data.totalStudents}</div>
-                        <div class="stat-label">Total Students</div>
+                        <div class="stat-value">${data.totalcadets}</div>
+                        <div class="stat-label">Total cadets</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">${data.totalResponses}</div>
@@ -637,20 +637,20 @@
                 `;
                 
                 // Display results table
-                data.results.forEach(student => {
+                data.results.forEach(cadet => {
                     const row = document.createElement('tr');
-                    if (student.rank === 1) {
+                    if (cadet.rank === 1) {
                         row.classList.add('rank-1');
                     }
                     
                     row.innerHTML = `
-                        <td>${student.rank}</td>
-                        <td>${student.name}</td>
-                        <td>${student.score.toFixed(2)}</td>
-                        <td>${student.percentage.toFixed(1)}%</td>
+                        <td>${cadet.rank}</td>
+                        <td>${cadet.name}</td>
+                        <td>${cadet.score.toFixed(2)}</td>
+                        <td>${cadet.percentage.toFixed(1)}%</td>
                         <td>
                             <div class="percentage-bar">
-                                <div class="percentage-fill" style="width: ${student.percentage}%"></div>
+                                <div class="percentage-fill" style="width: ${cadet.percentage}%"></div>
                             </div>
                         </td>
                     `;
@@ -677,10 +677,10 @@
                 if (!processedData) return;
                 
                 // Create CSV content
-                let csvContent = "Rank,Student Name,Final Score,Percentage,Ratings Received\n";
+                let csvContent = "Rank,cadet Name,Final Score,Percentage,Ratings Received\n";
                 
-                processedData.results.forEach(student => {
-                    csvContent += `${student.rank},"${student.name}",${student.score.toFixed(2)},${student.percentage.toFixed(1)}%,${student.ratingCount}\n`;
+                processedData.results.forEach(cadet => {
+                    csvContent += `${cadet.rank},"${cadet.name}",${cadet.score.toFixed(2)},${cadet.percentage.toFixed(1)}%,${cadet.ratingCount}\n`;
                 });
                 
                 // Create download link
@@ -688,7 +688,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.setAttribute('href', url);
-                link.setAttribute('download', 'enrichment_360_rankings.csv');
+                link.setAttribute('download', '360_Peer_rankings.csv');
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
