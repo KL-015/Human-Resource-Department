@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluation System - 360 Peer</title>
+    <title>360 Peer Evaluation - Cadet Ranking System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -307,13 +307,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>360 Peer - Evaluation System</h1>
-        <p class="description">Upload your Google Forms ranking data to calculate final cadet rankings</p>
+        <h1>360 Peer Evaluation - Cadet Ranking System</h1>
+        <p class="description">Upload your peer evaluation data to calculate final cadet rankings</p>
         
         <div class="instructions">
             <h3>How to use this system:</h3>
             <ol>
-                <li>Export your Google Forms responses to Excel format (like the sample provided)</li>
+                <li>Export your Google Forms responses to Excel format</li>
                 <li>Upload the Excel file using the button below</li>
                 <li>The system will process the peer rankings and calculate final scores</li>
                 <li>Review the results and download if needed</li>
@@ -482,6 +482,7 @@
                 const errors = [];
                 const cadetScores = {};
                 const cadetRatings = {};
+                const cadetRankings = {};
                 
                 // Extract cadet names from headers (columns C to X)
                 const cadetNames = new Set();
@@ -506,33 +507,35 @@
                     if (!cadetScores[raterName]) {
                         cadetScores[raterName] = 0;
                         cadetRatings[raterName] = 0;
+                        cadetRankings[raterName] = [];
                     }
                     
                     // Process each ranking in the row
                     for (let j = 2; j < row.length; j++) {
-                        const rankedcadet = row[j] ? row[j].trim() : null;
-                        if (!rankedcadet || rankedcadet === '') continue;
+                        const rankedCadet = row[j] ? row[j].trim() : null;
+                        if (!rankedCadet || rankedCadet === '') continue;
                         
                         // The rank position is determined by the column index
                         // Column C (index 2) is 2nd place, D (index 3) is 3rd, etc.
                         const rankPosition = j - 1; // So index 2 -> rank 2, index 3 -> rank 3, etc.
                         
                         // Initialize cadet if not exists
-                        if (!cadetScores[rankedcadet]) {
-                            cadetScores[rankedcadet] = 0;
-                            cadetRatings[rankedcadet] = 0;
+                        if (!cadetScores[rankedCadet]) {
+                            cadetScores[rankedCadet] = 0;
+                            cadetRatings[rankedCadet] = 0;
+                            cadetRankings[rankedCadet] = [];
                         }
                         
-                        // Add to the cadet's score (lower rank number = better)
-                        // We invert so higher scores are better
-                        const maxPossibleRank = row.length - 2; // Adjust based on form structure
-                        const score = maxPossibleRank - rankPosition + 2;
+                        // NEW PERCENTAGE CALCULATION
+                        // Calculate point value based on rank (1st = 100, 2nd = 98.96, 3rd = 97.92, etc.)
+                        const pointValue = 100 - ((rankPosition - 1) * 1.04);
                         
-                        cadetScores[rankedcadet] += score;
-                        cadetRatings[rankedcadet] += 1;
+                        cadetScores[rankedCadet] += pointValue;
+                        cadetRatings[rankedCadet] += 1;
+                        cadetRankings[rankedCadet].push(rankPosition);
                         
                         // Add to our set of all cadets
-                        cadetNames.add(rankedcadet);
+                        cadetNames.add(rankedCadet);
                     }
                 }
                 
@@ -541,37 +544,30 @@
                 for (const [name, totalScore] of Object.entries(cadetScores)) {
                     const ratingCount = cadetRatings[name] || 1;
                     const avgScore = totalScore / ratingCount;
+                    const rankings = cadetRankings[name] || [];
+                    
                     results.push({
                         name: name,
                         score: avgScore,
                         ratingCount: ratingCount,
-                        totalScore: totalScore
+                        totalScore: totalScore,
+                        rankings: rankings
                     });
                 }
                 
                 // Sort by score (descending)
                 results.sort((a, b) => b.score - a.score);
                 
-                // Calculate percentages (100% for highest, 75% for lowest)
-                if (results.length > 0) {
-                    const totalcadets = results.length;
-                    
-                    results.forEach((cadet, index) => {
-                        cadet.rank = index + 1;
-                        
-                        // Calculate percentage based on rank position
-                        // Rank 1 = 100%, last rank = 75%
-                        if (totalcadets === 1) {
-                            cadet.percentage = 100;
-                        } else {
-                            cadet.percentage = 100 - ((cadet.rank - 1) / (totalcadets - 1)) * 25;
-                        }
-                    });
-                }
+                // Assign ranks and percentages
+                results.forEach((cadet, index) => {
+                    cadet.rank = index + 1;
+                    // Percentage is simply the average score (already calculated)
+                    cadet.percentage = cadet.score;
+                });
                 
                 // Check for potential issues
-                const totalcadets = results.length;
-                if (totalcadets === 0) {
+                const totalCadets = results.length;
+                if (totalCadets === 0) {
                     errors.push("No cadet data found in the file.");
                 }
                 
@@ -606,7 +602,7 @@
                 
                 return {
                     results: results,
-                    totalcadets: totalcadets,
+                    totalCadets: totalCadets,
                     totalResponses: data.length - 1,
                     nameVariations: nameVariations
                 };
@@ -619,8 +615,8 @@
                 // Display stats
                 statsSection.innerHTML = `
                     <div class="stat-card">
-                        <div class="stat-value">${data.totalcadets}</div>
-                        <div class="stat-label">Total cadets</div>
+                        <div class="stat-value">${data.totalCadets}</div>
+                        <div class="stat-label">Total Cadets</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">${data.totalResponses}</div>
@@ -647,7 +643,7 @@
                         <td>${cadet.rank}</td>
                         <td>${cadet.name}</td>
                         <td>${cadet.score.toFixed(2)}</td>
-                        <td>${cadet.percentage.toFixed(1)}%</td>
+                        <td>${cadet.percentage.toFixed(2)}%</td>
                         <td>
                             <div class="percentage-bar">
                                 <div class="percentage-fill" style="width: ${cadet.percentage}%"></div>
@@ -677,10 +673,10 @@
                 if (!processedData) return;
                 
                 // Create CSV content
-                let csvContent = "Rank,cadet Name,Final Score,Percentage,Ratings Received\n";
+                let csvContent = "Rank,Cadet Name,Final Score,Percentage,Ratings Received\n";
                 
                 processedData.results.forEach(cadet => {
-                    csvContent += `${cadet.rank},"${cadet.name}",${cadet.score.toFixed(2)},${cadet.percentage.toFixed(1)}%,${cadet.ratingCount}\n`;
+                    csvContent += `${cadet.rank},"${cadet.name}",${cadet.score.toFixed(2)},${cadet.percentage.toFixed(2)}%,${cadet.ratingCount}\n`;
                 });
                 
                 // Create download link
@@ -688,7 +684,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.setAttribute('href', url);
-                link.setAttribute('download', '360_Peer_rankings.csv');
+                link.setAttribute('download', 'cadet_rankings.csv');
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
