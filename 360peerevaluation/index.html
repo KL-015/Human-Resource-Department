@@ -1,1 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Ranking System - Enrichment 360</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #6b8cbc;
+            --light: #f5f7fa;
+            --dark: #2c3e50;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+        }
+        
+        .upload-section {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        
+        .upload-section:hover {
+            border-color: var(--primary);
+        }
+        
+        .upload-section.highlight {
+            border-color: var(--primary);
+            background-color: rgba(74, 111, 165, 0.05);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .upload-btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: #f1f7ff;
+        }
+        
+        .rank-1 {
+            background-color: rgba(255, 215, 0, 0.1);
+        }
+        
+        .rank-1 td:first-child {
+            font-weight: bold;
+            color: gold;
+        }
+        
+        .percentage-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .percentage-fill {
+            height: 100%;
+            background: linear-gradient(to right, #4a6fa5, #6b8cbc);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .error-section {
+            display: none;
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .error-list {
+            list-style-type: none;
+        }
+        
+        .error-list li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .error-list li:before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            text-align: center;
+            min-width: 150px;
+            margin: 10px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            
+            .upload-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enrichment 360 - Student Ranking System</h1>
+        <p class="description">Upload your Google Forms ranking data to calculate final student rankings</p>
+        
+        <div class="instructions">
+            <h3>How to use this system:</h3>
+            <ol>
+                <li>Export your Google Forms responses to Excel format (like the sample provided)</li>
+                <li>Upload the Excel file using the button below</li>
+                <li>The system will process the peer rankings and calculate final scores</li>
+                <li>Review the results and download if needed</li>
+            </ol>
+        </div>
+        
+        <div class="upload-section" id="uploadArea">
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+            <label for="fileInput" class="upload-btn">Choose Excel File</label>
+            <p class="file-name" id="fileName">No file chosen</p>
+            <p>Drag and drop your Excel file here or click to browse</p>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your data...</p>
+        </div>
+        
+        <div class="error-section" id="errorSection">
+            <h3>Issues found in your data:</h3>
+            <ul class="error-list" id="errorList"></ul>
+        </div>
+        
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Final Rankings</h2>
+                <button class="btn btn-primary" id="downloadBtn">Download Results</button>
+            </div>
+            
+            <div class="stats" id="statsSection">
+                <!-- Stats will be populated here -->
+            </div>
+            
+            <div class="table-container">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Student Name</th>
+                            <th>Final Score</th>
+                            <th>Percentage</th>
+                            <th>Visual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="resetBtn">Process Another File</button>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileName = document.getElementById('fileName');
+            const loading = document.getElementById('loading');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsBody = document.getElementById('resultsBody');
+            const errorSection = document.getElementById('errorSection');
+            const errorList = document.getElementById('errorList');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const statsSection = document.getElementById('statsSection');
+            
+            let processedData = null;
+            
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                uploadArea.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                uploadArea.classList.remove('highlight');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            fileInput.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+            
+            function handleFiles(files) {
+                if (files.length === 0) return;
+                
+                const file = files[0];
+                if (!file.name.match(/\.(xlsx|xls)$/)) {
+                    alert('Please select an Excel file (.xlsx or .xls)');
+                    return;
+                }
+                
+                fileName.textContent = file.name;
+                processExcelFile(file);
+            }
+            
+            function processExcelFile(file) {
+                loading.style.display = 'block';
+                resultsSection.style.display = 'none';
+                errorSection.style.display = 'none';
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // Assume first sheet is the one with data
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        // Convert to JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        // Process the data
+                        processedData = processRankingData(jsonData);
+                        
+                        // Display results
+                        displayResults(processedData);
+                        
+                    } catch (error) {
+                        console.error('Error processing file:', error);
+                        showError(['Failed to process the Excel file. Please make sure it is a valid Google Forms export.']);
+                    } finally {
+                        loading.style.display = 'none';
+                    }
+                };
+                
+                reader.onerror = function() {
+                    loading.style.display = 'none';
+                    showError(['Failed to read the file. Please try again.']);
+                };
+                
+                reader.readAsArrayBuffer(file);
+            }
+            
+            function processRankingData(data) {
+                const errors = [];
+                const studentScores = {};
+                const studentRatings = {};
+                
+                // Extract student names from headers (columns C to X)
+                const studentNames = new Set();
+                if (data.length > 0) {
+                    const headers = data[0];
+                    for (let i = 2; i < headers.length; i++) {
+                        if (headers[i] && headers[i].trim() !== '') {
+                            studentNames.add(headers[i].trim());
+                        }
+                    }
+                }
+                
+                // Process each response row
+                for (let i = 1; i < data.length; i++) {
+                    const row = data[i];
+                    if (!row || row.length < 2) continue;
+                    
+                    const raterName = row[1] ? row[1].trim() : null;
+                    if (!raterName) continue;
+                    
+                    // Initialize student if not exists
+                    if (!studentScores[raterName]) {
+                        studentScores[raterName] = 0;
+                        studentRatings[raterName] = 0;
+                    }
+                    
+                    // Process each ranking in the row
+                    for (let j = 2; j < row.length; j++) {
+                        const rankedStudent = row[j] ? row[j].trim() : null;
+                        if (!rankedStudent || rankedStudent === '') continue;
+                        
+                        // The rank position is determined by the column index
+                        // Column C (index 2) is 2nd place, D (index 3) is 3rd, etc.
+                        const rankPosition = j - 1; // So index 2 -> rank 2, index 3 -> rank 3, etc.
+                        
+                        // Initialize student if not exists
+                        if (!studentScores[rankedStudent]) {
+                            studentScores[rankedStudent] = 0;
+                            studentRatings[rankedStudent] = 0;
+                        }
+                        
+                        // Add to the student's score (lower rank number = better)
+                        // We invert so higher scores are better
+                        const maxPossibleRank = row.length - 2; // Adjust based on form structure
+                        const score = maxPossibleRank - rankPosition + 2;
+                        
+                        studentScores[rankedStudent] += score;
+                        studentRatings[rankedStudent] += 1;
+                        
+                        // Add to our set of all students
+                        studentNames.add(rankedStudent);
+                    }
+                }
+                
+                // Calculate average scores and prepare results
+                const results = [];
+                for (const [name, totalScore] of Object.entries(studentScores)) {
+                    const ratingCount = studentRatings[name] || 1;
+                    const avgScore = totalScore / ratingCount;
+                    results.push({
+                        name: name,
+                        score: avgScore,
+                        ratingCount: ratingCount,
+                        totalScore: totalScore
+                    });
+                }
+                
+                // Sort by score (descending)
+                results.sort((a, b) => b.score - a.score);
+                
+                // Calculate percentages (100% for highest, 75% for lowest)
+                if (results.length > 0) {
+                    const totalStudents = results.length;
+                    
+                    results.forEach((student, index) => {
+                        student.rank = index + 1;
+                        
+                        // Calculate percentage based on rank position
+                        // Rank 1 = 100%, last rank = 75%
+                        if (totalStudents === 1) {
+                            student.percentage = 100;
+                        } else {
+                            student.percentage = 100 - ((student.rank - 1) / (totalStudents - 1)) * 25;
+                        }
+                    });
+                }
+                
+                // Check for potential issues
+                const totalStudents = results.length;
+                if (totalStudents === 0) {
+                    errors.push("No student data found in the file.");
+                }
+                
+                // Check for students with very few ratings
+                const expectedRatings = data.length - 1; // Number of respondents
+                results.forEach(student => {
+                    if (student.ratingCount < expectedRatings * 0.5) {
+                        errors.push(`${student.name} has relatively few ratings (${student.ratingCount} out of ${expectedRatings} possible).`);
+                    }
+                });
+                
+                // Check for name variations
+                const nameVariations = {};
+                results.forEach(student => {
+                    const simpleName = student.name.replace(/,/g, '').toUpperCase().trim();
+                    if (!nameVariations[simpleName]) {
+                        nameVariations[simpleName] = [];
+                    }
+                    nameVariations[simpleName].push(student.name);
+                });
+                
+                Object.keys(nameVariations).forEach(simpleName => {
+                    if (nameVariations[simpleName].length > 1) {
+                        errors.push(`Possible name variations detected: ${nameVariations[simpleName].join(', ')}`);
+                    }
+                });
+                
+                // Show errors if any
+                if (errors.length > 0) {
+                    showError(errors);
+                }
+                
+                return {
+                    results: results,
+                    totalStudents: totalStudents,
+                    totalResponses: data.length - 1,
+                    nameVariations: nameVariations
+                };
+            }
+            
+            function displayResults(data) {
+                resultsBody.innerHTML = '';
+                statsSection.innerHTML = '';
+                
+                // Display stats
+                statsSection.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${data.totalStudents}</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${data.totalResponses}</div>
+                        <div class="stat-label">Total Responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round(data.results[0].score * 100) / 100}</div>
+                        <div class="stat-label">Highest Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round(data.results[data.results.length-1].score * 100) / 100}</div>
+                        <div class="stat-label">Lowest Score</div>
+                    </div>
+                `;
+                
+                // Display results table
+                data.results.forEach(student => {
+                    const row = document.createElement('tr');
+                    if (student.rank === 1) {
+                        row.classList.add('rank-1');
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${student.rank}</td>
+                        <td>${student.name}</td>
+                        <td>${student.score.toFixed(2)}</td>
+                        <td>${student.percentage.toFixed(1)}%</td>
+                        <td>
+                            <div class="percentage-bar">
+                                <div class="percentage-fill" style="width: ${student.percentage}%"></div>
+                            </div>
+                        </td>
+                    `;
+                    
+                    resultsBody.appendChild(row);
+                });
+                
+                resultsSection.style.display = 'block';
+            }
+            
+            function showError(messages) {
+                errorList.innerHTML = '';
+                
+                messages.forEach(message => {
+                    const li = document.createElement('li');
+                    li.textContent = message;
+                    errorList.appendChild(li);
+                });
+                
+                errorSection.style.display = 'block';
+            }
+            
+            downloadBtn.addEventListener('click', function() {
+                if (!processedData) return;
+                
+                // Create CSV content
+                let csvContent = "Rank,Student Name,Final Score,Percentage,Ratings Received\n";
+                
+                processedData.results.forEach(student => {
+                    csvContent += `${student.rank},"${student.name}",${student.score.toFixed(2)},${student.percentage.toFixed(1)}%,${student.ratingCount}\n`;
+                });
+                
+                // Create download link
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'enrichment_360_rankings.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            resetBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                fileName.textContent = 'No file chosen';
+                resultsSection.style.display = 'none';
+                errorSection.style.display = 'none';
+                processedData = null;
+            });
+        });
+    </script>
+</body>
+</html>
