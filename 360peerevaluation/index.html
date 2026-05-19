@@ -1233,8 +1233,9 @@
                         <div class="rank-badge" style="animation-delay: 0.3s">2nd Place</div>
                         <div class="rank-badge" style="animation-delay: 0.4s">3rd Place</div>
                         <div class="rank-badge" style="animation-delay: 0.5s">...</div>
-                        <div class="rank-badge" style="animation-delay: 0.6s">15th Place</div>
+                        <div class="rank-badge" style="animation-delay: 0.6s">Nth Place</div>
                     </div>
+                    <p style="margin-top: 12px; color: #64748b; font-size: 0.875rem;">Automatically adapts to any number of cadets (15, 26, 30, 40+)</p>
                 </div>
             </div>
 
@@ -1252,14 +1253,15 @@
                         <div class="arrow">→</div>
                         <div class="point-marker" style="animation-delay: 0.5s">
                             <div class="point-value">87.5</div>
-                            <div class="point-label">8th Place</div>
+                            <div class="point-label">Middle</div>
                         </div>
                         <div class="arrow">→</div>
                         <div class="point-marker" style="animation-delay: 0.6s">
                             <div class="point-value">75</div>
-                            <div class="point-label">15th Place</div>
+                            <div class="point-label">Last Place</div>
                         </div>
                     </div>
+                    <p style="margin-top: 12px; color: #64748b; font-size: 0.875rem;">Formula: 100 - (position - 1) × (25 ÷ (total - 1))</p>
                 </div>
             </div>
 
@@ -1452,62 +1454,80 @@
                 const errors = [];
                 const cadetScores = {};
                 const cadetRatings = {};
+                const allCadets = new Set();
+                
+                const headerRow = data[0];
+                let totalRanks = 0;
+                for (let j = 2; j < headerRow.length; j++) {
+                    if (headerRow[j] && headerRow[j].toString().trim() !== '') {
+                        totalRanks = j - 1;
+                    }
+                }
+                if (totalRanks === 0) totalRanks = 26;
                 
                 for (let i = 1; i < data.length; i++) {
                     const row = data[i];
                     if (!row || row.length < 2) continue;
                     
                     const raterName = row[1] ? row[1].trim() : null;
-                    if (!raterName) continue;
+                    if (raterName) {
+                        allCadets.add(raterName);
+                    }
                     
-                    for (let j = 2; j <= 16; j++) {
-                        if (j >= row.length) continue;
-                        
+                    for (let j = 2; j < row.length; j++) {
                         const rankedCadet = row[j] ? row[j].trim() : null;
-                        if (!rankedCadet || rankedCadet === '') continue;
-                        
-                        const rankPosition = j - 1;
-                        
-                        if (!cadetScores[rankedCadet]) {
-                            cadetScores[rankedCadet] = 0;
-                            cadetRatings[rankedCadet] = 0;
+                        if (rankedCadet && rankedCadet !== '') {
+                            allCadets.add(rankedCadet);
+                            
+                            if (!cadetScores[rankedCadet]) {
+                                cadetScores[rankedCadet] = 0;
+                                cadetRatings[rankedCadet] = 0;
+                            }
+                            
+                            const rankPosition = j - 1;
+                            const maxPoints = 100;
+                            const minPoints = 75;
+                            
+                            const pointValue = maxPoints - ((rankPosition - 1) * ((maxPoints - minPoints) / (totalRanks - 1)));
+                            
+                            cadetScores[rankedCadet] += pointValue;
+                            cadetRatings[rankedCadet] += 1;
                         }
-                        
-                        const maxPoints = 100;
-                        const minPoints = 75;
-                        const totalRanks = 15;
-                        
-                        const pointValue = maxPoints - ((rankPosition - 1) * ((maxPoints - minPoints) / (totalRanks - 1)));
-                        
-                        cadetScores[rankedCadet] += pointValue;
-                        cadetRatings[rankedCadet] += 1;
                     }
                 }
                 
                 const results = [];
-                for (const [name, totalScore] of Object.entries(cadetScores)) {
-                    const ratingCount = cadetRatings[name] || 1;
-                    const avgScore = totalScore / ratingCount;
+                for (const name of allCadets) {
+                    const totalScore = cadetScores[name] || 0;
+                    const ratingCount = cadetRatings[name] || 0;
+                    let avgScore = 0;
+                    let scoreDisplay = 0;
+                    
+                    if (ratingCount > 0) {
+                        avgScore = totalScore / ratingCount;
+                        scoreDisplay = avgScore;
+                    }
                     
                     results.push({
                         name: name,
                         score: avgScore,
+                        scoreDisplay: scoreDisplay,
                         ratingCount: ratingCount,
                         totalScore: totalScore
                     });
                 }
                 
-                results.sort((a, b) => b.score - a.score);
+                results.sort((a, b) => b.scoreDisplay - a.scoreDisplay);
                 
                 let currentRank = 1;
                 results.forEach((cadet, index) => {
-                    if (index > 0 && cadet.score === results[index - 1].score) {
+                    if (index > 0 && cadet.scoreDisplay === results[index - 1].scoreDisplay) {
                         cadet.rank = results[index - 1].rank;
                     } else {
                         cadet.rank = currentRank;
                     }
                     currentRank++;
-                    cadet.percentage = cadet.score;
+                    cadet.percentage = cadet.scoreDisplay;
                 });
                 
                 const totalCadets = results.length;
@@ -1522,7 +1542,8 @@
                 return {
                     results: results,
                     totalCadets: totalCadets,
-                    totalResponses: data.length - 1
+                    totalResponses: data.length - 1,
+                    totalRanks: totalRanks
                 };
             }
             
@@ -1531,14 +1552,16 @@
                 statsSection.innerHTML = '';
                 
                 const totalCadets = data.totalCadets;
-                const topScore = Math.round(data.results[0].score * 100) / 100;
-                const avgScore = Math.round(data.results.reduce((sum, cadet) => sum + cadet.score, 0) / totalCadets * 100) / 100;
-                const minScore = Math.round(data.results[data.results.length - 1].score * 100) / 100;
+                const ratedCadets = data.results.filter(c => c.ratingCount > 0);
+                const topScore = ratedCadets.length > 0 ? Math.round(ratedCadets[0].score * 100) / 100 : 'N/A';
+                const avgScore = ratedCadets.length > 0 ? Math.round(ratedCadets.reduce((sum, cadet) => sum + cadet.score, 0) / ratedCadets.length * 100) / 100 : 'N/A';
+                const minScore = ratedCadets.length > 0 ? Math.round(ratedCadets[ratedCadets.length - 1].score * 100) / 100 : 'N/A';
                 
                 // Animate stat cards with delays
                 const statCards = [
                     { value: data.totalCadets, label: 'Total Cadets', delay: '0.1s' },
                     { value: data.totalResponses, label: 'Total Responses', delay: '0.2s' },
+                    { value: data.totalRanks || 26, label: 'Rank Positions', delay: '0.25s' },
                     { value: topScore, label: 'Highest Score', delay: '0.3s' },
                     { value: avgScore, label: 'Average Score', delay: '0.4s' },
                     { value: minScore, label: 'Lowest Score', delay: '0.5s' }
@@ -1564,14 +1587,18 @@
                         row.classList.add('rank-1');
                     }
                     
+                    const scoreDisplay = cadet.ratingCount > 0 ? cadet.score.toFixed(2) : 'N/A';
+                    const percentageDisplay = cadet.ratingCount > 0 ? cadet.percentage.toFixed(2) + '%' : 'N/A';
+                    const barWidth = cadet.ratingCount > 0 ? cadet.percentage : 0;
+                    
                     row.innerHTML = `
                         <td>${cadet.rank}</td>
                         <td>${cadet.name}</td>
-                        <td>${cadet.score.toFixed(2)}</td>
-                        <td>${cadet.percentage.toFixed(2)}%</td>
+                        <td>${scoreDisplay}</td>
+                        <td>${percentageDisplay}</td>
                         <td>
                             <div class="percentage-bar">
-                                <div class="percentage-fill" data-width="${cadet.percentage}"></div>
+                                <div class="percentage-fill" data-width="${barWidth}" style="${cadet.ratingCount === 0 ? 'display:none' : ''}"></div>
                             </div>
                         </td>
                     `;
@@ -1604,10 +1631,12 @@
             downloadBtn.addEventListener('click', function() {
                 if (!processedData) return;
                 
-                let csvContent = "Rank,Cadet Name,Final Score,Percentage\n";
+                let csvContent = "Rank,Cadet Name,Final Score,Percentage,Ratings Received\n";
                 
                 processedData.results.forEach(cadet => {
-                    csvContent += `${cadet.rank},"${cadet.name}",${cadet.score.toFixed(2)},${cadet.percentage.toFixed(2)}%\n`;
+                    const score = cadet.ratingCount > 0 ? cadet.score.toFixed(2) : 'N/A';
+                    const percentage = cadet.ratingCount > 0 ? cadet.percentage.toFixed(2) + '%' : 'N/A';
+                    csvContent += `${cadet.rank},"${cadet.name}",${score},${percentage},${cadet.ratingCount}\n`;
                 });
                 
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
