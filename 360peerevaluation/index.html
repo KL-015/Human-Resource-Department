@@ -351,7 +351,7 @@
         }
         
         .error-list li:before {
-            content: "⚠️";
+            content: "\26A0\FE0F";
             position: absolute;
             left: 0;
         }
@@ -970,6 +970,130 @@
             color: #64748b;
         }
         
+        /* Grid textbox Excel-like styles */
+        .grid-textbox {
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 0.875rem;
+            resize: vertical;
+            transition: all 0.3s;
+            flex-grow: 1;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+        
+        .grid-textbox:focus-within {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .grid-textbox table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            border-radius: 0;
+        }
+        
+        .grid-textbox table th {
+            background: #e2e8f0;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            padding: 4px 8px;
+            border-bottom: 2px solid #cbd5e1;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        
+        .grid-textbox table td {
+            padding: 0;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+        }
+        
+        .grid-textbox table td:first-child {
+            width: 32px;
+            min-width: 32px;
+            text-align: center;
+            background: #f1f5f9;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            border-right: 1px solid #e2e8f0;
+            padding: 0;
+            vertical-align: middle;
+        }
+        
+        .grid-textbox table td:last-child {
+            border-right: none;
+        }
+        
+        .grid-textbox input {
+            width: 100%;
+            border: none;
+            background: white;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            transition: background 0.15s;
+            box-sizing: border-box;
+        }
+        
+        .grid-textbox input:focus {
+            background: #eef2ff;
+            box-shadow: inset 0 0 0 2px var(--primary);
+        }
+        
+        .grid-textbox input:hover:not(:focus) {
+            background: #f8fafc;
+        }
+        
+        .grid-textbox .grid-actions {
+            display: flex;
+            gap: 8px;
+            padding: 8px 12px;
+            border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        
+        .grid-textbox .grid-actions button {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        
+        .grid-textbox .grid-actions button:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .grid-status {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .grid-status .hint {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -1093,7 +1217,7 @@
             </div>
         </div>
         
-        <!-- Cross-Reference System -->
+        <!-- Cross-Reference System with Excel-like Grid Textbox -->
         <div class="system-container hidden" id="crossRefSystem">
             <div class="lists-container">
                 <div class="card">
@@ -1102,13 +1226,16 @@
                             <span class="badge badge-blue">List A</span>
                             <span style="color: #64748b; font-size: 0.875rem;">(Reference List)</span>
                         </div>
-                        <p class="card-description">Paste your first list of names here. Each name should be on a new line or separated by commas/semicolons.</p>
+                        <p class="card-description">Paste names. Each row is one name. Comma-separated names (e.g. "LASTNAME, First MI") stay together.</p>
                     </div>
                     <div class="card-content">
                         <div class="input-group">
                             <label for="listA">Names in List A</label>
-                            <textarea id="listA" placeholder="John Smith&#10;Jane Doe&#10;Robert Johnson"></textarea>
-                            <div class="name-count" id="countA">0 names detected</div>
+                            <div id="gridA" class="grid-textbox"></div>
+                            <div class="grid-status">
+                                <span id="countA">0 names</span>
+                                <span class="hint">Tab to next row | Enter for new row | Shift+Enter for new line within cell</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1119,13 +1246,16 @@
                             <span class="badge badge-green">List B</span>
                             <span style="color: #64748b; font-size: 0.875rem;">(Comparison List)</span>
                         </div>
-                        <p class="card-description">Paste your second list of names here. The app will find names in this list that don't exist in List A.</p>
+                        <p class="card-description">Paste names. Each row is one name. Comma-separated names stay together as one entry.</p>
                     </div>
                     <div class="card-content">
                         <div class="input-group">
                             <label for="listB">Names in List B</label>
-                            <textarea id="listB" placeholder="John Smith&#10;Jane Brown&#10;Michael Davis"></textarea>
-                            <div class="name-count" id="countB">0 names detected</div>
+                            <div id="gridB" class="grid-textbox"></div>
+                            <div class="grid-status">
+                                <span id="countB">0 names</span>
+                                <span class="hint">Tab to next row | Enter for new row | Shift+Enter for new line within cell</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1197,7 +1327,7 @@
                     <div class="instructions-grid">
                         <div class="instruction-step">
                             <h4>1. Enter Names</h4>
-                            <p>Paste your lists of names into the text areas. Each name can be on a new line or separated by commas/semicolons.</p>
+                            <p>Each row is one name. Names with commas (e.g., "Smith, John A") stay as one entry. Paste directly from Excel or type each name in its own row.</p>
                         </div>
                         <div class="instruction-step">
                             <h4>2. Process Lists</h4>
@@ -1219,7 +1349,7 @@
     <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">×</button>
+            <button class="modal-close" id="modalClose">&times;</button>
             <h2 class="modal-title">How Rankings Are Calculated</h2>
             
             <div class="calculation-step" style="animation-delay: 0.1s">
@@ -1250,18 +1380,18 @@
                             <div class="point-value">100</div>
                             <div class="point-label">1st Place</div>
                         </div>
-                        <div class="arrow">→</div>
+                        <div class="arrow">&rarr;</div>
                         <div class="point-marker" style="animation-delay: 0.5s">
                             <div class="point-value">87.5</div>
                             <div class="point-label">Middle</div>
                         </div>
-                        <div class="arrow">→</div>
+                        <div class="arrow">&rarr;</div>
                         <div class="point-marker" style="animation-delay: 0.6s">
                             <div class="point-value">75</div>
                             <div class="point-label">Last Place</div>
                         </div>
                     </div>
-                    <p style="margin-top: 12px; color: #64748b; font-size: 0.875rem;">Formula: 100 - (position - 1) × (25 ÷ (total - 1))</p>
+                    <p style="margin-top: 12px; color: #64748b; font-size: 0.875rem;">Formula: 100 - (position - 1) &times; (25 &divide; (total - 1))</p>
                 </div>
             </div>
 
@@ -1272,7 +1402,7 @@
                 </div>
                 <div class="step-visual">
                     <div class="formula" style="animation-delay: 0.6s">
-                        Total Points ÷ Number of Ratings = Final Score
+                        Total Points &divide; Number of Ratings = Final Score
                     </div>
                 </div>
             </div>
@@ -1557,7 +1687,6 @@
                 const avgScore = ratedCadets.length > 0 ? Math.round(ratedCadets.reduce((sum, cadet) => sum + cadet.score, 0) / ratedCadets.length * 100) / 100 : 'N/A';
                 const minScore = ratedCadets.length > 0 ? Math.round(ratedCadets[ratedCadets.length - 1].score * 100) / 100 : 'N/A';
                 
-                // Animate stat cards with delays
                 const statCards = [
                     { value: data.totalCadets, label: 'Total Cadets', delay: '0.1s' },
                     { value: data.totalResponses, label: 'Total Responses', delay: '0.2s' },
@@ -1578,7 +1707,6 @@
                     statsSection.appendChild(card);
                 });
                 
-                // Display results table with staggered animation
                 data.results.forEach((cadet, index) => {
                     const row = document.createElement('tr');
                     row.style.animationDelay = `${0.05 * index}s`;
@@ -1608,7 +1736,6 @@
                 
                 resultsSection.style.display = 'block';
                 
-                // Animate percentage bars after a short delay
                 setTimeout(() => {
                     document.querySelectorAll('.percentage-fill').forEach(fill => {
                         fill.style.width = fill.dataset.width + '%';
@@ -1658,107 +1785,246 @@
                 processedData = null;
             });
             
-            // Cross-Reference System functionality
-            // Parse input text into individual names
-            function parseNames(input) {
-                return input
-                    .split(/[\n,;]+/)
-                    .map(name => name.trim())
-                    .filter(name => name.length > 0);
-            }
+            // ========================================================================
+            // Excel-like Grid Textbox System (Cross-Reference)
+            // ========================================================================
 
-            // Normalize name for comparison
-            function normalizeName(name) {
-                return name
-                    .toUpperCase()
-                    .replace(/[.,\-]/g, "")
-                    .replace(/\s+/g, " ")
-                    .trim();
-            }
+            function createGrid(containerId) {
+                const container = document.getElementById(containerId);
+                
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                const thNum = document.createElement('th');
+                thNum.textContent = '#';
+                const thName = document.createElement('th');
+                thName.textContent = 'Name';
+                headerRow.appendChild(thNum);
+                headerRow.appendChild(thName);
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+                
+                const tbody = document.createElement('tbody');
+                table.appendChild(tbody);
+                
+                const actions = document.createElement('div');
+                actions.className = 'grid-actions';
+                const addBtn = document.createElement('button');
+                addBtn.textContent = '+ Add Row';
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove Empty Rows';
+                actions.appendChild(addBtn);
+                actions.appendChild(removeBtn);
+                
+                container.appendChild(table);
+                container.appendChild(actions);
+                
+                let rowCounter = 1;
 
-            // Simple fuzzy matching algorithm
-            function fuzzyMatch(name1, name2) {
-                const normalized1 = normalizeName(name1);
-                const normalized2 = normalizeName(name2);
-                
-                // Exact match
-                if (normalized1 === normalized2) return true;
-                
-                // Check if one is a substring of the other (for partial matches)
-                if (normalized1.includes(normalized2) || normalized2.includes(normalized1)) {
-                    return true;
-                }
-                
-                // Check for single character differences
-                if (Math.abs(normalized1.length - normalized2.length) <= 1) {
-                    let diffCount = 0;
-                    const minLen = Math.min(normalized1.length, normalized2.length);
+                function addRow(value) {
+                    const tr = document.createElement('tr');
+                    const tdNum = document.createElement('td');
+                    const tdInput = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = value || '';
                     
-                    for (let i = 0; i < minLen; i++) {
-                        if (normalized1[i] !== normalized2[i]) {
-                            diffCount++;
-                            if (diffCount > 1) return false;
+                    tdNum.textContent = rowCounter++;
+                    
+                    input.addEventListener('input', onGridChange);
+                    input.addEventListener('focus', function() {
+                        this.select();
+                    });
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            const newRow = addRow('');
+                            newRow.querySelector('input').focus();
+                        }
+                        if (e.key === 'Tab' && !e.shiftKey) {
+                            const rows = tbody.querySelectorAll('tr');
+                            const idx = Array.from(rows).indexOf(tr);
+                            if (idx === rows.length - 1) {
+                                e.preventDefault();
+                                const newRow = addRow('');
+                                newRow.querySelector('input').focus();
+                            }
+                        }
+                        if (e.key === 'Tab' && e.shiftKey) {
+                            const rows = tbody.querySelectorAll('tr');
+                            const idx = Array.from(rows).indexOf(tr);
+                            if (idx > 0) {
+                                e.preventDefault();
+                                rows[idx - 1].querySelector('input').focus();
+                            }
+                        }
+                    });
+                    
+                    tdInput.appendChild(input);
+                    tr.appendChild(tdNum);
+                    tr.appendChild(tdInput);
+                    tbody.appendChild(tr);
+                    return tr;
+                }
+
+                function getValues() {
+                    const inputs = tbody.querySelectorAll('input');
+                    const values = [];
+                    inputs.forEach(inp => {
+                        const v = inp.value.trim();
+                        if (v) values.push(v);
+                    });
+                    return values;
+                }
+
+                function setValues(names) {
+                    tbody.innerHTML = '';
+                    rowCounter = 1;
+                    names.forEach(n => addRow(n));
+                    if (names.length === 0) addRow('');
+                    updateGridCount(containerId);
+                }
+
+                function onGridChange() {
+                    updateGridCount(containerId);
+                }
+
+                addBtn.addEventListener('click', function() {
+                    addRow('');
+                    updateGridCount(containerId);
+                    const inputs = tbody.querySelectorAll('input');
+                    inputs[inputs.length - 1].focus();
+                });
+
+                removeBtn.addEventListener('click', function() {
+                    const rows = tbody.querySelectorAll('tr');
+                    for (let i = rows.length - 1; i >= 0; i--) {
+                        const inp = rows[i].querySelector('input');
+                        if (inp && !inp.value.trim()) {
+                            rows[i].remove();
+                        }
+                    }
+                    rowCounter = 1;
+                    const remaining = tbody.querySelectorAll('tr');
+                    remaining.forEach(r => {
+                        r.querySelector('td:first-child').textContent = rowCounter++;
+                    });
+                    if (remaining.length === 0) addRow('');
+                    updateGridCount(containerId);
+                });
+
+                container.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const clipboardData = e.clipboardData || window.clipboardData;
+                    const text = clipboardData.getData('text');
+                    if (!text) return;
+                    
+                    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    if (lines.length === 0) return;
+                    
+                    const names = lines.map(line => {
+                        const parts = line.split('\t');
+                        return parts[0].trim();
+                    }).filter(n => n.length > 0);
+                    
+                    // Paste starting from the focused row
+                    const focusedInput = container.querySelector('input:focus');
+                    let startIdx = 0;
+                    if (focusedInput) {
+                        const rows = tbody.querySelectorAll('tr');
+                        const focusedRow = focusedInput.closest('tr');
+                        startIdx = Array.from(rows).indexOf(focusedRow);
+                    }
+                    
+                    const existingRows = tbody.querySelectorAll('tr');
+                    // Overwrite from startIdx, add new rows if needed
+                    for (let i = 0; i < names.length; i++) {
+                        if (startIdx + i < existingRows.length) {
+                            existingRows[startIdx + i].querySelector('input').value = names[i];
+                        } else {
+                            addRow(names[i]);
                         }
                     }
                     
-                    // Allow one difference at the end if lengths differ
-                    if (diffCount <= 1) return true;
-                }
-                
-                return false;
+                    updateGridCount(containerId);
+                });
+
+                // Add initial empty row
+                addRow('');
+
+                return { getValues, setValues };
             }
 
-            // Main cross-reference logic
+            function updateGridCount(containerId) {
+                const gridId = containerId === 'gridA' ? 'gridA' : 'gridB';
+                const countId = gridId === 'gridA' ? 'countA' : 'countB';
+                const grid = grids[gridId];
+                const count = grid.getValues().length;
+                document.getElementById(countId).textContent = count + ' names';
+            }
+
+            const grids = {};
+            grids.gridA = createGrid('gridA');
+            grids.gridB = createGrid('gridB');
+
             function crossReference() {
-                const listA = document.getElementById('listA').value;
-                const listB = document.getElementById('listB').value;
-                
-                const namesA = parseNames(listA);
-                const namesB = parseNames(listB);
+                const namesA = grids.gridA.getValues();
+                const namesB = grids.gridB.getValues();
                 
                 const missing = [];
                 const flagged = [];
                 
-                // Find names in A not in B
+                // Simple fuzzy matching
+                function normalizeName(name) {
+                    return name.toUpperCase().replace(/[.,\-]/g, '').replace(/\s+/g, ' ').trim();
+                }
+
+                function fuzzyMatch(name1, name2) {
+                    const n1 = normalizeName(name1);
+                    const n2 = normalizeName(name2);
+                    if (n1 === n2) return true;
+                    if (n1.includes(n2) || n2.includes(n1)) return true;
+                    if (Math.abs(n1.length - n2.length) <= 1) {
+                        let diffCount = 0;
+                        const minLen = Math.min(n1.length, n2.length);
+                        for (let i = 0; i < minLen; i++) {
+                            if (n1[i] !== n2[i]) {
+                                diffCount++;
+                                if (diffCount > 1) return false;
+                            }
+                        }
+                        if (diffCount <= 1) return true;
+                    }
+                    return false;
+                }
+                
                 namesA.forEach(nameA => {
                     const found = namesB.some(nameB => fuzzyMatch(nameA, nameB));
-                    if (!found) {
-                        missing.push(nameA);
-                    }
+                    if (!found) missing.push(nameA);
                 });
                 
-                // Find names in B not in A
                 namesB.forEach(nameB => {
                     const found = namesA.some(nameA => fuzzyMatch(nameA, nameB));
-                    if (!found) {
-                        flagged.push(nameB);
-                    }
+                    if (!found) flagged.push(nameB);
                 });
                 
-                // Update results
                 displayCrossRefResults(missing, flagged, namesA.length, namesB.length);
             }
 
-            // Display results in the UI
             function displayCrossRefResults(missing, flagged, totalA, totalB) {
-                // Show results section and hide instructions
                 document.getElementById('resultsSection2').classList.remove('hidden');
                 document.getElementById('instructionsSection').classList.add('hidden');
                 
-                // Update counts
                 document.getElementById('missingCount').textContent = `(${missing.length} names from List A not found in List B)`;
                 document.getElementById('flaggedCount').textContent = `(${flagged.length} names from List B not found in List A)`;
                 
-                // Update stats
                 document.getElementById('statMissing').textContent = missing.length;
                 document.getElementById('statFlagged').textContent = flagged.length;
                 document.getElementById('statTotalA').textContent = totalA;
                 document.getElementById('statTotalB').textContent = totalB;
                 
-                // Display missing names
                 const missingContainer = document.getElementById('missingContainer');
                 missingContainer.innerHTML = '';
-                
                 if (missing.length === 0) {
                     missingContainer.innerHTML = '<div class="empty-state"><p class="font-medium">All names from List A were found in List B!</p></div>';
                 } else {
@@ -1770,10 +2036,8 @@
                     });
                 }
                 
-                // Display flagged names
                 const flaggedContainer = document.getElementById('flaggedContainer');
                 flaggedContainer.innerHTML = '';
-                
                 if (flagged.length === 0) {
                     flaggedContainer.innerHTML = '<div class="empty-state"><p class="font-medium">All names from List B were found in List A!</p></div>';
                 } else {
@@ -1786,32 +2050,15 @@
                 }
             }
 
-            // Reset all data
             function resetAll() {
-                document.getElementById('listA').value = '';
-                document.getElementById('listB').value = '';
+                grids.gridA.setValues([]);
+                grids.gridB.setValues([]);
                 document.getElementById('resultsSection2').classList.add('hidden');
                 document.getElementById('instructionsSection').classList.remove('hidden');
-                updateNameCounts();
             }
 
-            // Update name counts in real-time
-            function updateNameCounts() {
-                const listA = document.getElementById('listA').value;
-                const listB = document.getElementById('listB').value;
-                
-                document.getElementById('countA').textContent = `${parseNames(listA).length} names detected`;
-                document.getElementById('countB').textContent = `${parseNames(listB).length} names detected`;
-            }
-
-            // Event listeners for cross-reference system
             document.getElementById('processBtn').addEventListener('click', crossReference);
             document.getElementById('resetBtn2').addEventListener('click', resetAll);
-            document.getElementById('listA').addEventListener('input', updateNameCounts);
-            document.getElementById('listB').addEventListener('input', updateNameCounts);
-
-            // Initialize name counts
-            updateNameCounts();
         });
     </script>
 </body>
